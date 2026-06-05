@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { supabase } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
@@ -9,8 +9,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -38,9 +36,9 @@ export default function AdminLoginPage() {
         setError("حدث خطأ غير متوقع أثناء تسجيل الدخول");
         setLoading(false);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Unexpected Error:", err);
-      setError(err?.message || "حدث خطأ غير متوقع");
+      setError(err instanceof Error ? err.message : "حدث خطأ غير متوقع");
       setLoading(false);
     }
   };
