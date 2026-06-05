@@ -4,54 +4,22 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { NightsCarousel } from "@/components/sections/NightsCarousel";
 import { FeatureCard } from "@/components/cards/FeatureCard";
 import { QuoteCard, ReflectionCard } from "@/components/cards/ContentCards";
+import { getPublishedNights, getFeaturedCards } from "@/lib/queries";
 
-// Mock data for initial development - will be replaced by DB queries in Phase 6
-const MOCK_NIGHTS = Array.from({ length: 13 }, (_, i) => ({
-  id: `night-${i + 1}`,
-  number: i + 1,
-  title: `عنوان الليلة ${i + 1}`,
-  slug: `night-${i + 1}`,
-  isLocked: i > 2, // First 3 are unlocked for demo
-}));
+export default async function KarbalaPage() {
+  // Fetch real data from Supabase
+  const nights = await getPublishedNights();
+  const featuredCards = await getFeaturedCards();
 
-const MOCK_CARDS = [
-  {
-    id: "card-1",
-    type: "quote" as const,
-    title: "مقولة",
-    content: "إن الحسين مصباح الهدى وسفينة النجاة",
-    slug: "quote-1",
-    seo_description: "النبي محمد (ص)",
-    status: "published" as const,
-    downloadable: false,
-    featured: true,
-    sort_order: 1,
-    night_id: null,
-    image: null,
-    seo_title: null,
-    created_at: "",
-    updated_at: "",
-  },
-  {
-    id: "card-2",
-    type: "reflection" as const,
-    title: "تأمل",
-    content: "كيف يمكننا تجسيد مبادئ عاشوراء في حياتنا اليومية؟",
-    slug: "reflection-1",
-    status: "published" as const,
-    downloadable: false,
-    featured: true,
-    sort_order: 2,
-    night_id: null,
-    image: null,
-    seo_title: null,
-    seo_description: null,
-    created_at: "",
-    updated_at: "",
-  },
-];
+  // Map nights to the format NightsCarousel expects
+  const nightsForCarousel = nights.map((n) => ({
+    id: n.id,
+    number: n.number,
+    title: n.title,
+    slug: n.slug,
+    isLocked: false,
+  }));
 
-export default function KarbalaPage() {
   return (
     <div>
       <HeroSection 
@@ -64,8 +32,7 @@ export default function KarbalaPage() {
         <div className="section-container">
           <SectionDivider title="ليالي الموسم" />
           <div className="mt-4xl relative">
-            {/* The carousel container extends outside slightly, so we wrap it nicely */}
-            <NightsCarousel nights={MOCK_NIGHTS} />
+            <NightsCarousel nights={nightsForCarousel} />
           </div>
         </div>
       </section>
@@ -107,15 +74,17 @@ export default function KarbalaPage() {
           <SectionDivider title="مقتطفات" />
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-xl mt-4xl">
-            {MOCK_CARDS.map(card => (
-              card.type === 'quote' ? (
-                <QuoteCard key={card.id} card={card} />
-              ) : card.type === 'reflection' ? (
-                <ReflectionCard key={card.id} card={card} />
-              ) : null
-            ))}
-            {/* Duplicate quote for layout balancing */}
-            <QuoteCard key="card-3" card={MOCK_CARDS[0]} />
+            {featuredCards.length > 0 ? (
+              featuredCards.map(card => (
+                card.type === 'quote' ? (
+                  <QuoteCard key={card.id} card={card} />
+                ) : card.type === 'reflection' ? (
+                  <ReflectionCard key={card.id} card={card} />
+                ) : null
+              ))
+            ) : (
+              <p className="text-karbala-secondary font-kufi col-span-full text-center">لا توجد بطاقات مميزة حالياً</p>
+            )}
           </div>
           
           <div className="mt-4xl text-center">

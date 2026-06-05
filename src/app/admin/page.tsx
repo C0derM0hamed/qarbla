@@ -1,18 +1,35 @@
 import React from "react";
 import Link from "next/link";
-// import { getActiveSeason, getPublishedNights, getPublishedCards } from "@/lib/queries";
+import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "لوحة التحكم | وعي يمر من كربلاء",
 };
 
 export default async function AdminDashboardPage() {
-  // Mock data for Phase 5
+  const supabase = createServerClient();
+
+  // Fetch real stats from the database
+  const [seasonsRes, nightsRes, cardsRes, resourcesRes, attachmentsRes] = await Promise.all([
+    supabase.from("seasons").select("id, is_active").limit(1),
+    supabase.from("nights").select("id, status"),
+    supabase.from("cards").select("id, status"),
+    supabase.from("resources").select("id"),
+    supabase.from("attachments").select("id"),
+  ]);
+
+  const nights = nightsRes.data ?? [];
+  const cards = cardsRes.data ?? [];
+  const activeSeason = seasonsRes.data?.[0]?.is_active ?? false;
+
   const stats = {
-    totalNights: 13,
-    publishedNights: 3,
-    totalCards: 15,
-    activeSeason: true,
+    totalNights: nights.length,
+    publishedNights: nights.filter(n => n.status === 'published').length,
+    totalCards: cards.length,
+    publishedCards: cards.filter(c => c.status === 'published').length,
+    totalResources: resourcesRes.data?.length ?? 0,
+    totalAttachments: attachmentsRes.data?.length ?? 0,
+    activeSeason,
   };
 
   return (
@@ -38,8 +55,8 @@ export default async function AdminDashboardPage() {
         {/* Stat Card 2 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">إجمالي الليالي</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.totalNights}</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">الليالي</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.publishedNights} / {stats.totalNights}</p>
           </div>
           <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -51,13 +68,14 @@ export default async function AdminDashboardPage() {
         {/* Stat Card 3 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">الليالي المنشورة</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.publishedNights}</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">البطاقات</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.publishedCards} / {stats.totalCards}</p>
           </div>
           <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center">
              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
              </svg>
           </div>
         </div>
@@ -65,14 +83,13 @@ export default async function AdminDashboardPage() {
         {/* Stat Card 4 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">إجمالي البطاقات</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.totalCards}</p>
+            <p className="text-sm font-medium text-gray-500 mb-1">المصادر والمرفقات</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.totalResources + stats.totalAttachments}</p>
           </div>
           <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
             </svg>
           </div>
         </div>

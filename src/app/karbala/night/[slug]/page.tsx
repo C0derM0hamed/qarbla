@@ -1,64 +1,41 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { getNightBySlug, getAllNightSlugs } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { SectionDivider } from "@/components/ui/SectionDivider";
 import { AudioPlayer } from "@/components/ui/AudioPlayer";
-import { QuoteCard, ReflectionCard } from "@/components/cards/ContentCards";
+import { QuoteCard } from "@/components/cards/ContentCards";
 import { ShareButton } from "@/components/ui/ShareButton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import type { Metadata } from "next";
 
 // Generate static params for all published nights
 export async function generateStaticParams() {
-  // Mock data for build until Supabase is connected
-  return [{ slug: 'night-1' }, { slug: 'night-2' }];
+  const slugs = await getAllNightSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 // Generate metadata dynamically
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  // Mock data for build until Supabase is connected
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const night = await getNightBySlug(params.slug);
+  if (!night) {
+    return { title: "الليلة غير موجودة" };
+  }
   return {
-    title: `الليلة - ${params.slug}`,
-    description: "وصف الليلة",
+    title: `${night.title} | وعيٌ يمرّ من كربلاء`,
+    description: night.short_description || night.teaser || `الليلة ${night.number} من موسم وعي يمر من كربلاء`,
+    openGraph: {
+      title: night.seo_title || night.title,
+      description: night.seo_description || night.short_description || "",
+      images: night.seo_image ? [{ url: night.seo_image }] : [],
+    },
   };
 }
 
 export default async function NightPage({ params }: { params: { slug: string } }) {
-  // We'll use mock data if DB isn't seeded yet for dev purposes
-  // const night = await getNightBySlug(params.slug);
-  // if (!night) notFound();
-  
-  // For now, let's use mock data to show the layout since DB is empty
-  const night = {
-    title: "عنوان الليلة",
-    number: 1,
-    cover_image: null,
-    short_description: "وصف قصير لليلة المعرفية يوضح الفكرة العامة.",
-    teaser: "ما الذي يجعل هذه الليلة مهمة في مسار الوعي الحسيني؟",
-    central_idea: "الفكرة المركزية تدور حول مفهوم التضحية والوعي.",
-    why_important: "أهمية هذه الليلة تكمن في تأسيس قواعد الوعي.",
-    audio_file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    pdf_file: "#",
-    quote: "إن الحسين مصباح الهدى وسفينة النجاة",
-    quote_author: "النبي محمد (ص)",
-    reflection_question: "كيف نطبق مبدأ الحرية في حياتنا؟",
-    practical_step: "ابحث عن موقف يحتاج لقول كلمة حق وكن شجاعاً.",
-    topics: [
-      { id: '1', title: "المحور الأول", content: "تفاصيل المحور الأول هنا" },
-    ],
-    verses: [
-      { id: '1', content: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", surah_name: "الطلاق", verse_number: "3" }
-    ],
-    narrations: [
-      { id: '1', content: "من مات ولم يعرف إمام زمانه مات ميتة جاهلية", source: "الكافي" }
-    ],
-    resources: [
-      { id: '1', title: "كتاب الوعي الحسيني", category: "book", url: "#" }
-    ],
-    cards: [],
-    attachments: []
-  } as any; // Using any for mock
+  const night = await getNightBySlug(params.slug);
+  if (!night) notFound();
 
   return (
     <div className="pb-8xl">
@@ -148,7 +125,7 @@ export default async function NightPage({ params }: { params: { slug: string } }
       )}
 
       {/* Quran Verses & Narrations */}
-      {(night.verses?.length > 0 || night.narrations?.length > 0) && (
+      {((night.verses?.length ?? 0) > 0 || (night.narrations?.length ?? 0) > 0) && (
         <section className="section-container max-w-prose mb-6xl space-y-4xl">
           <SectionDivider title="شواهد الليلة" />
           
@@ -169,7 +146,7 @@ export default async function NightPage({ params }: { params: { slug: string } }
             {night.narrations?.map((narration: any, idx: number) => (
               <div key={idx} className="card-base p-lg text-center">
                 <p className="font-kufi text-body-md text-karbala-white leading-relaxed mb-4">
-                  "{narration.content}"
+                  &quot;{narration.content}&quot;
                 </p>
                 {narration.source && <Badge variant="muted">{narration.source}</Badge>}
               </div>
@@ -204,7 +181,7 @@ export default async function NightPage({ params }: { params: { slug: string } }
       )}
       
       {/* Resources & PDF */}
-      {(night.resources?.length > 0 || night.pdf_file) && (
+      {((night.resources?.length ?? 0) > 0 || night.pdf_file) && (
         <section className="section-container max-w-prose mb-6xl text-center">
           <SectionDivider title="مواد مساندة" />
           

@@ -1,7 +1,22 @@
 import { MetadataRoute } from 'next'
 import { SITE_URL } from '@/constants'
+import { createServerClient } from '@/lib/supabase/server'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const supabase = createServerClient();
+
+  // Fetch published night slugs
+  const { data: nights } = await supabase
+    .from('nights')
+    .select('slug, updated_at')
+    .eq('status', 'published');
+
+  // Fetch published card slugs
+  const { data: cards } = await supabase
+    .from('cards')
+    .select('slug, updated_at')
+    .eq('status', 'published');
+
   // Base routes
   const routes = [
     {
@@ -24,14 +39,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // In production, we would fetch dynamic slugs from Supabase here.
-  // For now, we mock the URLs for the 13 nights.
-  const nightRoutes = Array.from({ length: 13 }).map((_, i) => ({
-    url: `${SITE_URL}/karbala/night/night-${i + 1}`,
-    lastModified: new Date(),
+  // Dynamic night routes
+  const nightRoutes = (nights ?? []).map((night) => ({
+    url: `${SITE_URL}/karbala/night/${night.slug}`,
+    lastModified: new Date(night.updated_at),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));
 
-  return [...routes, ...nightRoutes];
+  // Dynamic card routes
+  const cardRoutes = (cards ?? []).map((card) => ({
+    url: `${SITE_URL}/karbala/cards/${card.slug}`,
+    lastModified: new Date(card.updated_at),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
+  return [...routes, ...nightRoutes, ...cardRoutes];
 }

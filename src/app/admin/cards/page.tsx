@@ -1,17 +1,23 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/admin/DataTable";
+import { createServerClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export const metadata = {
   title: "إدارة البطاقات | لوحة التحكم",
 };
 
 export default async function AdminCardsPage() {
-  // Mock data until DB is fully seeded / queries are built
-  const cards = [
-    { id: "1", type: "quote", title: "مقولة", content: "إن الحسين مصباح الهدى", status: "published" as const, created_at: new Date().toISOString() },
-    { id: "2", type: "reflection", title: "تأمل", content: "كيف نجسد مبادئ عاشوراء؟", status: "draft" as const, created_at: new Date().toISOString() },
-  ];
+  const supabase = createServerClient();
+  const { data: cards, error } = await supabase
+    .from("cards")
+    .select("*, nights(title)")
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching cards:", error);
+  }
 
   const getTypeLabel = (type: string) => {
     switch (type) {
@@ -39,7 +45,7 @@ export default async function AdminCardsPage() {
       </div>
 
       <DataTable
-        data={cards}
+        data={cards || []}
         keyExtractor={(row) => row.id}
         columns={[
           { header: "النوع", accessor: (row) => getTypeLabel(row.type) },
@@ -68,6 +74,11 @@ export default async function AdminCardsPage() {
                 </Link>
                 <form action={async () => {
                   "use server";
+                  const { createAdminClient } = await import("@/lib/supabase/admin");
+                  const adminSupabase = createAdminClient();
+                  await adminSupabase.from("cards").delete().eq("id", row.id);
+                  revalidatePath("/admin/cards");
+                  revalidatePath("/karbala/cards");
                 }}>
                   <button type="submit" className="text-red-600 hover:text-red-800 font-medium">
                     حذف

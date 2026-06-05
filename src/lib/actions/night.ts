@@ -22,10 +22,22 @@ export async function createNightAction(formData: FormData) {
   const narrationsJson = formData.get("narrations") as string;
 
   try {
+    // Get the active season ID
+    const { data: season } = await supabase
+      .from("seasons")
+      .select("id")
+      .eq("is_active", true)
+      .single();
+    
+    if (!season) {
+      return { success: false, error: "No active season found. Please create a season first." };
+    }
+
     // 1. Insert Night
     const { data: night, error: nightError } = await supabase
       .from("nights")
       .insert({
+        season_id: season.id,
         number,
         title,
         short_description,
@@ -33,7 +45,7 @@ export async function createNightAction(formData: FormData) {
         central_idea,
         why_important,
         status,
-        slug: `night-${number}`, // basic slug generation
+        slug: `night-${number}`,
       })
       .select()
       .single();

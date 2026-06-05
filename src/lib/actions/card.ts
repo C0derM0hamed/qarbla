@@ -16,7 +16,7 @@ export async function createCardAction(formData: FormData) {
   const featured = formData.get("featured") === "true";
   const downloadable = formData.get("downloadable") === "true";
 
-  const night_id = night_id_str ? parseInt(night_id_str) : null;
+  const night_id = night_id_str || null;
   const slug = `${type}-${Date.now()}`;
 
   try {

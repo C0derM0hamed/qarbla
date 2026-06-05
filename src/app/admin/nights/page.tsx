@@ -1,18 +1,23 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/admin/DataTable";
-// import { getAdminNights } from "@/lib/queries";
+import { createServerClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export const metadata = {
   title: "إدارة الليالي | لوحة التحكم",
 };
 
 export default async function AdminNightsPage() {
-  // Mock data until DB is fully seeded / queries are built
-  const nights = [
-    { id: "1", number: 1, title: "الليلة الأولى", status: "published" as const, created_at: new Date().toISOString() },
-    { id: "2", number: 2, title: "الليلة الثانية", status: "draft" as const, created_at: new Date().toISOString() },
-  ];
+  const supabase = createServerClient();
+  const { data: nights, error } = await supabase
+    .from("nights")
+    .select("*")
+    .order("number", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching nights:", error);
+  }
 
   return (
     <div className="font-kufi space-y-6">
@@ -31,7 +36,7 @@ export default async function AdminNightsPage() {
       </div>
 
       <DataTable
-        data={nights}
+        data={nights || []}
         keyExtractor={(row) => row.id}
         columns={[
           { header: "رقم الليلة", accessor: "number" },
@@ -40,9 +45,11 @@ export default async function AdminNightsPage() {
             header: "الحالة", 
             accessor: (row) => (
               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                row.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                row.status === 'published' ? 'bg-green-100 text-green-800' : 
+                row.status === 'hidden' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'
               }`}>
-                {row.status === 'published' ? 'منشور' : 'مسودة'}
+                {row.status === 'published' ? 'منشور' : row.status === 'hidden' ? 'مخفي' : 'مسودة'}
               </span>
             )
           },
@@ -59,7 +66,11 @@ export default async function AdminNightsPage() {
                 </Link>
                 <form action={async () => {
                   "use server";
-                  // Add delete logic later
+                  const { createAdminClient } = await import("@/lib/supabase/admin");
+                  const adminSupabase = createAdminClient();
+                  await adminSupabase.from("nights").delete().eq("id", row.id);
+                  revalidatePath("/admin/nights");
+                  revalidatePath("/karbala");
                 }}>
                   <button type="submit" className="text-red-600 hover:text-red-800 font-medium">
                     حذف

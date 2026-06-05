@@ -1,43 +1,36 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-// import { getCardBySlug, getAllCardSlugs } from "@/lib/queries";
+import { getCardBySlug, getAllCardSlugs } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { QuoteCard, ReflectionCard } from "@/components/cards/ContentCards";
 import { ShareButton } from "@/components/ui/ShareButton";
 import { Button } from "@/components/ui/Button";
+import type { Metadata } from "next";
 
 export async function generateStaticParams() {
-  // const slugs = await getAllCardSlugs();
-  // return slugs.map((slug) => ({ slug }));
-  return [{ slug: 'quote-1' }, { slug: 'reflection-1' }];
+  const slugs = await getAllCardSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  // const card = await getCardBySlug(params.slug);
-  // if (!card) return {};
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const card = await getCardBySlug(params.slug);
+  if (!card) return { title: "البطاقة غير موجودة" };
   
   return {
-    title: `بطاقة - ${params.slug}`,
-    description: "محتوى البطاقة",
+    title: `${card.title} | وعيٌ يمرّ من كربلاء`,
+    description: card.seo_description || card.content?.substring(0, 160) || "",
+    openGraph: {
+      title: card.seo_title || card.title,
+      description: card.seo_description || card.content?.substring(0, 160) || "",
+      images: card.image ? [{ url: card.image }] : [],
+    },
   };
 }
 
 export default async function CardDetailPage({ params }: { params: { slug: string } }) {
-  // const card = await getCardBySlug(params.slug);
-  // if (!card) notFound();
-
-  // Mock data
-  const card: any = {
-    id: "1",
-    slug: params.slug,
-    type: params.slug.includes("quote") ? "quote" : "reflection",
-    title: params.slug.includes("quote") ? "مقولة" : "تأمل",
-    content: params.slug.includes("quote") ? "إن الحسين مصباح الهدى وسفينة النجاة" : "كيف يمكننا تجسيد مبادئ عاشوراء في حياتنا اليومية؟",
-    seo_description: params.slug.includes("quote") ? "النبي محمد (ص)" : null,
-    downloadable: true,
-    image: null,
-  };
+  const card = await getCardBySlug(params.slug);
+  if (!card) notFound();
 
   return (
     <div className="pb-8xl min-h-screen">
