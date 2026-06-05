@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
+import { MediaUploader } from "@/components/admin/MediaUploader";
 
 export const metadata = { title: "إضافة مرفق جديد | لوحة التحكم" };
 
@@ -13,11 +14,31 @@ export default async function NewAttachmentPage() {
   async function createAttachment(formData: FormData) {
     "use server";
     const title = formData.get("title") as string;
-    const file_url = formData.get("file_url") as string;
     const type = formData.get("type") as string;
     const night_id = formData.get("night_id") as string || null;
+    const file = formData.get("file") as File;
+
+    if (!file || file.size === 0) {
+      // Need a file! (In a real app, handle error more gracefully)
+      throw new Error("File is required");
+    }
 
     const adminSupabase = createAdminClient();
+    
+    // Upload file
+    const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+    const filename = `attachments/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const { error: uploadError } = await adminSupabase.storage
+      .from("media")
+      .upload(filename, buffer, { contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = adminSupabase.storage.from("media").getPublicUrl(filename);
+    const file_url = urlData.publicUrl;
+
     await adminSupabase.from("attachments").insert({
       title,
       file_url,
@@ -47,16 +68,20 @@ export default async function NewAttachmentPage() {
           <input type="text" name="title" required className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-karbala-gold focus:ring-karbala-gold" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">رابط الملف</label>
-          <input type="url" name="file_url" required dir="ltr" className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-karbala-gold focus:ring-karbala-gold text-left" />
-        </div>
-        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">نوع المرفق</label>
-          <select name="type" required className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-karbala-gold focus:ring-karbala-gold">
+          <select name="type" required className="w-full border-gray-300 rounded-md shadow-sm p-2 border focus:border-karbala-gold focus:ring-karbala-gold mb-4">
             <option value="pdf">ملف PDF</option>
             <option value="audio">صوتي</option>
             <option value="image">صورة</option>
           </select>
+        </div>
+        <div>
+          <MediaUploader 
+            name="file" 
+            label="ملف المرفق" 
+            accept="*/*" 
+            description="الرجاء اختيار الملف المناسب"
+          />
         </div>
         <div className="flex justify-end gap-3 pt-4">
           <a href="/admin/attachments" className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">إلغاء</a>

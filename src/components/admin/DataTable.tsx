@@ -15,8 +15,13 @@ interface DataTableProps<T> {
 export function DataTable<T>({ data, columns, keyExtractor, emptyMessage = "لا توجد بيانات لعرضها" }: DataTableProps<T>) {
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center text-gray-500 font-kufi">
-        {emptyMessage}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 min-h-[250px] flex flex-col items-center justify-center text-center text-gray-500 font-kufi">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 mb-4">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p className="text-lg">{emptyMessage}</p>
       </div>
     );
   }
@@ -31,7 +36,7 @@ export function DataTable<T>({ data, columns, keyExtractor, emptyMessage = "لا
                 <th
                   key={idx}
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-4 text-right text-sm font-bold text-gray-700 bg-gray-50 border-b border-gray-200"
                 >
                   {col.header}
                 </th>

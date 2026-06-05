@@ -101,23 +101,37 @@ export default async function NightPage({ params }: { params: { slug: string } }
 
       {/* Topics */}
       {night.topics && night.topics.length > 0 && (
-        <section className="section-container max-w-prose mb-6xl space-y-4xl">
+        <section className="section-container max-w-4xl mb-6xl">
           <SectionDivider title="محاور الليلة" />
-          <div className="space-y-3xl mt-4xl">
+          <div className="relative border-r-2 border-[rgba(212,185,138,0.15)] pr-8 md:pr-12 mt-4xl space-y-12">
             {night.topics.map((topic: any, index: number) => (
-              <div key={topic.id || index}>
-                <h3 className="font-scheherazade text-display-h3 text-karbala-gold-light mb-4 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full border border-[rgba(212,185,138,0.3)] flex items-center justify-center text-sm">
+              <div key={topic.id || index} className="relative group">
+                {/* Timeline Dot */}
+                <div className="absolute -right-[41px] md:-right-[57px] top-6 w-4 h-4 rounded-full bg-[#0D0B09] border-[3px] border-karbala-gold group-hover:scale-150 transition-transform duration-500 shadow-glow" />
+                
+                {/* Topic Card */}
+                <div className="card-base p-6 md:p-8 relative overflow-hidden bg-gradient-to-br from-[rgba(212,185,138,0.03)] to-transparent">
+                  {/* Subtle Background Number */}
+                  <div className="absolute -left-4 -top-8 text-[8rem] font-scheherazade text-karbala-gold opacity-5 select-none pointer-events-none group-hover:scale-110 transition-transform duration-700">
                     {index + 1}
-                  </span>
-                  {topic.title}
-                </h3>
-                {topic.content && (
-                  <div 
-                    className="font-kufi text-body-md text-karbala-white leading-relaxed prose prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: topic.content }} 
-                  />
-                )}
+                  </div>
+                  
+                  <h3 className="font-scheherazade text-2xl md:text-3xl text-karbala-gold-light mb-5 relative z-10">
+                    {topic.title}
+                  </h3>
+                  
+                  {topic.content && (
+                    <div 
+                      className="font-kufi text-[0.95rem] md:text-[1.05rem] text-karbala-secondary leading-[2] relative z-10"
+                      dangerouslySetInnerHTML={{ 
+                        __html: topic.content
+                          .replace(/\\n/g, '<br/>')
+                          .replace(/\n/g, '<br/>')
+                          .replace(/•/g, '<span class="text-karbala-gold mx-2">•</span>') 
+                      }} 
+                    />
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -198,6 +212,49 @@ export default async function NightPage({ params }: { params: { slug: string } }
                    <span className="text-sm">🔗</span> {res.title}
                 </a>
              ))}
+          </div>
+        </section>
+      )}
+
+      {/* Attachments */}
+      {(night.attachments?.length ?? 0) > 0 && (
+        <section className="section-container max-w-prose mb-6xl">
+          <SectionDivider title="مرفقات الليلة" />
+          <div className="mt-4xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {night.attachments.map((att: any) => (
+              <a
+                key={att.id}
+                href={att.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card-base p-lg flex items-center gap-4 group"
+              >
+                {/* Icon based on type */}
+                <div className="w-12 h-12 rounded-full border border-[rgba(212,185,138,0.3)] flex items-center justify-center text-karbala-gold shrink-0 group-hover:bg-[rgba(212,185,138,0.1)] transition-colors">
+                  {att.type === 'pdf' && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  )}
+                  {att.type === 'audio' && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+                    </svg>
+                  )}
+                  {att.type === 'image' && (
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-kufi text-sm text-karbala-gold-light truncate">{att.title}</p>
+                  <p className="font-kufi text-xs text-karbala-gray mt-1">
+                    {att.type === 'pdf' ? 'ملف PDF' : att.type === 'audio' ? 'ملف صوتي' : 'صورة'}
+                  </p>
+                </div>
+              </a>
+            ))}
           </div>
         </section>
       )}

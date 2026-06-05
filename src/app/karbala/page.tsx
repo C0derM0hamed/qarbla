@@ -4,12 +4,15 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { NightsCarousel } from "@/components/sections/NightsCarousel";
 import { FeatureCard } from "@/components/cards/FeatureCard";
 import { QuoteCard, ReflectionCard } from "@/components/cards/ContentCards";
-import { getPublishedNights, getFeaturedCards } from "@/lib/queries";
+import { getPublishedNights, getFeaturedCards, getActiveSeason } from "@/lib/queries";
 
 export default async function KarbalaPage() {
   // Fetch real data from Supabase
-  const nights = await getPublishedNights();
-  const featuredCards = await getFeaturedCards();
+  const [nights, featuredCards, season] = await Promise.all([
+    getPublishedNights(),
+    getFeaturedCards(),
+    getActiveSeason(),
+  ]);
 
   // Map nights to the format NightsCarousel expects
   const nightsForCarousel = nights.map((n) => ({
@@ -23,8 +26,11 @@ export default async function KarbalaPage() {
   return (
     <div>
       <HeroSection 
-        heroImage="/hero.png" 
-        logoImage="/icon.png"
+        heroImage={season?.hero_image || "/hero.png"} 
+        logoImage={season?.logo_image || "/icon.png"}
+        title={season?.title || undefined}
+        subtitle={season?.subtitle || undefined}
+        intro={season?.intro || undefined}
       />
 
       {/* Nights Section */}

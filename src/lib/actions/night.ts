@@ -4,6 +4,37 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
+async function uploadFileToStorage(
+  supabase: ReturnType<typeof createAdminClient>,
+  file: File,
+  folder: string
+): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+
+  const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await supabase.storage
+    .from("media")
+    .upload(filename, buffer, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error("Storage upload error:", uploadError);
+    return null;
+  }
+
+  const { data: urlData } = supabase.storage
+    .from("media")
+    .getPublicUrl(filename);
+
+  return urlData.publicUrl;
+}
+
 export async function createNightAction(formData: FormData) {
   const supabase = createAdminClient();
 
@@ -16,7 +47,7 @@ export async function createNightAction(formData: FormData) {
   const why_important = formData.get("why_important") as string;
   const status = formData.get("status") as 'draft' | 'published';
 
-  // We could process topics, verses, etc. if we pass them as JSON string in a hidden field
+  // Dynamic content (JSON)
   const topicsJson = formData.get("topics") as string;
   const versesJson = formData.get("verses") as string;
   const narrationsJson = formData.get("narrations") as string;
@@ -33,7 +64,18 @@ export async function createNightAction(formData: FormData) {
       return { success: false, error: "No active season found. Please create a season first." };
     }
 
-    // 1. Insert Night
+    // ── Upload media files to Supabase Storage ──
+    const coverFile = formData.get("cover_image") as File;
+    const audioFile = formData.get("audio_file") as File;
+    const pdfFile = formData.get("pdf_file") as File;
+
+    const [cover_image, audio_file, pdf_file] = await Promise.all([
+      uploadFileToStorage(supabase, coverFile, `nights/covers`),
+      uploadFileToStorage(supabase, audioFile, `nights/audio`),
+      uploadFileToStorage(supabase, pdfFile, `nights/pdfs`),
+    ]);
+
+    // 1. Insert Night (with media URLs)
     const { data: night, error: nightError } = await supabase
       .from("nights")
       .insert({
@@ -46,6 +88,9 @@ export async function createNightAction(formData: FormData) {
         why_important,
         status,
         slug: `night-${number}`,
+        cover_image,
+        audio_file,
+        pdf_file,
       })
       .select()
       .single();
@@ -97,14 +142,6 @@ export async function createNightAction(formData: FormData) {
         const { error } = await supabase.from("narrations").insert(narrationsToInsert);
         if (error) throw error;
       }
-    }
-
-    // File handling (Audio, PDF, Cover) - Mock implementation for now,
-    // would normally use Supabase Storage here and save public URLs
-    const audioFile = formData.get("audio_file") as File;
-    if (audioFile && audioFile.size > 0) {
-      // const buffer = await audioFile.arrayBuffer();
-      // await supabase.storage.from('media').upload(`nights/${nightId}/${audioFile.name}`, buffer);
     }
 
     revalidatePath("/admin/nights");

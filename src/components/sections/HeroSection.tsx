@@ -29,7 +29,7 @@ export function HeroSection({
       {/* Background Image (Cinematic) */}
       {heroImage && (
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-slow-zoom origin-center" 
           style={{ backgroundImage: `url(${heroImage})` }} 
         />
       )}
@@ -54,7 +54,7 @@ export function HeroSection({
                  <img src={logoImage} alt="Logo" className="h-24 md:h-32 mb-4 animate-fade-up" style={{ animationDelay: "300ms" }} />
               ) : (
                 <span 
-                  className="block opacity-0 animate-fade-up" 
+                  className="block opacity-0 animate-fade-up bg-clip-text text-transparent bg-gradient-to-b from-[#FFF5DE] via-karbala-gold to-karbala-gold-dark drop-shadow-sm" 
                   style={{ fontSize: "clamp(5rem, 14vw, 11rem)", animationDelay: "300ms" }}
                 >
                   وعي
@@ -62,14 +62,14 @@ export function HeroSection({
               )}
               
               <span 
-                className="block opacity-0 animate-fade-up" 
+                className="block opacity-0 animate-fade-up bg-clip-text text-transparent bg-gradient-to-b from-karbala-gold-light to-karbala-gold-dark" 
                 style={{ fontSize: "clamp(3rem, 8vw, 7rem)", animationDelay: "600ms" }}
               >
                 يمرّ من
               </span>
               
               <span
-                className="block text-[#C0392B] italic opacity-0 animate-fade-up drop-shadow-[0_0_60px_rgba(139,30,30,0.4)]"
+                className="block italic opacity-0 animate-fade-up drop-shadow-[0_0_60px_rgba(139,30,30,0.5)] bg-clip-text text-transparent bg-gradient-to-b from-[#E74C3C] to-[#8B1E1E]"
                 style={{ fontSize: "clamp(3rem, 8vw, 7rem)", animationDelay: "900ms" }}
               >
                 كربلاء

@@ -4,6 +4,37 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
+async function uploadFileToStorage(
+  supabase: ReturnType<typeof createAdminClient>,
+  file: File,
+  folder: string
+): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+
+  const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await supabase.storage
+    .from("media")
+    .upload(filename, buffer, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error("Storage upload error:", uploadError);
+    return null;
+  }
+
+  const { data: urlData } = supabase.storage
+    .from("media")
+    .getPublicUrl(filename);
+
+  return urlData.publicUrl;
+}
+
 export async function createCardAction(formData: FormData) {
   const supabase = createAdminClient();
 
@@ -20,6 +51,9 @@ export async function createCardAction(formData: FormData) {
   const slug = `${type}-${Date.now()}`;
 
   try {
+    const imageFile = formData.get("image") as File;
+    const image = await uploadFileToStorage(supabase, imageFile, "cards");
+
     const { error } = await supabase.from("cards").insert({
       type,
       title,
@@ -30,6 +64,7 @@ export async function createCardAction(formData: FormData) {
       featured,
       downloadable,
       slug,
+      image,
       sort_order: 1, // Add logic later if needed
     });
 

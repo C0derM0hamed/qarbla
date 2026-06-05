@@ -4,7 +4,9 @@ import { NAV_LINKS } from "@/constants";
 
 export function Footer() {
   return (
-    <footer className="bg-karbala-black border-t border-[rgba(212,185,138,0.12)]">
+    <footer className="bg-karbala-black relative overflow-hidden">
+      {/* Subtle top gradient border */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[rgba(212,185,138,0.3)] to-transparent" />
       <div className="section-container py-5xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3xl">
           {/* Column 1: Logo & Tagline */}
@@ -55,8 +57,8 @@ export function Footer() {
                     w-10 h-10 rounded-full
                     border border-[rgba(212,185,138,0.25)]
                     flex items-center justify-center
-                    text-karbala-gold
-                    hover:bg-[rgba(212,185,138,0.1)] hover:-translate-y-0.5
+                    text-karbala-gold shadow-ambient
+                    hover:bg-[rgba(212,185,138,0.1)] hover:-translate-y-1 hover:shadow-glow hover:text-karbala-gold-light
                     transition-all duration-350 ease-premium
                   "
                   aria-label={platform}

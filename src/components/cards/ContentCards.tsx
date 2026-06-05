@@ -8,9 +8,9 @@ interface CardProps {
 
 export function QuoteCard({ card }: CardProps) {
   return (
-    <div className="card-base relative p-xl min-h-[180px] flex flex-col justify-between overflow-hidden group">
+    <div className="card-base relative p-xl h-full min-h-[180px] flex flex-col justify-between overflow-hidden group">
       {/* Decorative Quote Mark */}
-      <div className="absolute top-2 left-2 text-[6rem] font-scheherazade text-karbala-gold opacity-10 leading-none select-none pointer-events-none group-hover:scale-110 group-hover:text-[rgba(212,185,138,0.2)] transition-all duration-500">
+      <div className="absolute top-2 rtl:left-2 ltr:right-2 text-[6rem] font-scheherazade text-karbala-gold opacity-10 leading-none select-none pointer-events-none group-hover:scale-110 group-hover:text-[rgba(212,185,138,0.2)] transition-all duration-500">
         &quot;
       </div>
       
@@ -34,9 +34,9 @@ export function QuoteCard({ card }: CardProps) {
 
 export function ReflectionCard({ card }: CardProps) {
   return (
-    <div className="card-base relative p-xl flex flex-col group pr-[24px]">
+    <div className="card-base relative p-xl h-full flex flex-col group rtl:pr-6 ltr:pl-6">
       {/* Right border accent (RTL) */}
-      <div className="absolute top-0 bottom-0 right-0 w-[3px] bg-karbala-gold rounded-r-lg opacity-80 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute top-0 bottom-0 rtl:right-0 ltr:left-0 w-[3px] bg-karbala-gold rounded-full opacity-80 group-hover:opacity-100 transition-opacity" />
       
       <h3 className="font-scheherazade text-[1.1rem] text-karbala-gold mb-3">
         {card.title}

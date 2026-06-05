@@ -39,7 +39,7 @@ export function Navbar() {
           transition-all duration-350 ease-premium
           ${
             isScrolled
-              ? "bg-[rgba(13,11,9,0.85)] backdrop-blur-[12px] border-b border-[rgba(212,185,138,0.12)]"
+              ? "bg-[rgba(13,11,9,0.9)] backdrop-blur-md shadow-[0_1px_0_0_rgba(212,185,138,0.1),_0_8px_32px_0_rgba(0,0,0,0.6)]"
               : "bg-transparent"
           }
         `}

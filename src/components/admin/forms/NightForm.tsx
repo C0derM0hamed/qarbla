@@ -102,7 +102,7 @@ export function NightForm() {
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h2 className="text-xl font-bold text-gray-900 mb-6 font-scheherazade border-b pb-2">الوسائط والملفات</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <MediaUploader 
             name="cover_image" 
             label="صورة الغلاف" 
@@ -112,8 +112,14 @@ export function NightForm() {
           <MediaUploader 
             name="audio_file" 
             label="التسجيل الصوتي" 
-            accept="audio/mp3,audio/wav" 
+            accept="audio/mp3,audio/mpeg,audio/wav" 
             description="ملف MP3 للمحاضرة"
+          />
+          <MediaUploader 
+            name="pdf_file" 
+            label="ملخص PDF" 
+            accept="application/pdf" 
+            description="ملف PDF للتحميل"
           />
         </div>
       </div>
