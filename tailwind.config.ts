@@ -27,9 +27,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        scheherazade: ["var(--font-scheherazade)", "serif"],
-        kufi: ["var(--font-kufi)", "sans-serif"],
-        cinzel: ["var(--font-cinzel)", "serif"],
+        scheherazade: ["var(--font-scheherazade)", "var(--font-noto-sans)", "system-ui", "serif"],
+        kufi: ["var(--font-kufi)", "var(--font-noto-sans)", "system-ui", "sans-serif"],
+        cinzel: ["var(--font-cinzel)", "var(--font-noto-sans)", "system-ui", "serif"],
+        sans: ["var(--font-noto-sans)", "system-ui", "sans-serif"],
       },
       fontSize: {
         // Display scale (Scheherazade)

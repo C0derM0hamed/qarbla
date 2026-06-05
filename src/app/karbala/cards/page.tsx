@@ -52,7 +52,7 @@ export default async function CardsPage() {
   return (
     <div className="pt-32 min-h-screen">
       <div className="section-container text-center mb-6xl">
-        <h1 className="font-scheherazade text-display-h1 text-karbala-gold mb-4 leading-tight">
+        <h1 className="font-scheherazade text-display-h2 text-karbala-gold mb-4 leading-tight">
           البطاقات
         </h1>
         <p className="font-kufi text-body-lg text-karbala-secondary">

@@ -8,22 +8,32 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col md:flex-row" dir="rtl">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-l border-gray-200 flex-shrink-0 flex flex-col h-screen sticky top-0">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
+      <aside className="w-full md:w-64 bg-white md:border-l border-b md:border-b-0 border-gray-200 flex-shrink-0 flex flex-col md:h-screen md:sticky md:top-0 z-50">
+        <div className="h-16 flex items-center px-4 md:px-6 border-b border-gray-200 justify-between">
           <Link href="/admin" className="font-scheherazade text-2xl text-karbala-gold font-bold">
             {SITE_NAME}
           </Link>
+          <div className="md:hidden">
+            <form action="/auth/signout" method="post">
+              <button
+                type="submit"
+                className="text-sm font-medium text-red-700 hover:text-red-800"
+              >
+                تسجيل الخروج
+              </button>
+            </form>
+          </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto py-6">
-          <nav className="space-y-1 px-3">
+        <div className="md:flex-1 overflow-x-auto md:overflow-y-auto md:py-6 scrollbar-hide">
+          <nav className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-1 p-3 md:px-3 whitespace-nowrap rtl:space-x-reverse">
             {ADMIN_NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 shrink-0"
               >
                 {link.label}
               </Link>
@@ -31,7 +41,7 @@ export default function AdminLayout({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="hidden md:block p-4 border-t border-gray-200">
           <form action="/auth/signout" method="post">
             <button
               type="submit"
@@ -44,8 +54,8 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-8">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto">
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
           {children}
         </div>
       </main>

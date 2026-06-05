@@ -22,11 +22,15 @@ export default function AdminLoginPage() {
     });
 
     if (error) {
+      console.error("Login Error:", error);
       setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
       setLoading(false);
     } else {
-      router.push("/admin");
-      router.refresh(); // Refresh to trigger middleware re-evaluation
+      // Small delay to ensure cookies are propagated in the browser
+      setTimeout(() => {
+        router.push("/admin");
+        router.refresh();
+      }, 100);
     }
   };
 
