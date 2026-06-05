@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# وعيٌ يمرّ من كربلاء (Karbala Awareness Platform)
 
-## Getting Started
+A premium, interactive educational platform designed to present the Islamic season "وعي يمر من كربلاء" through structured nights, reflections, and deep insights. Built with Next.js 14 and Supabase.
 
-First, run the development server:
+## 🚀 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS + Custom CSS Variables (Dark Luxury Theme)
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth (Middleware protected Admin routes)
+- **Storage:** Supabase Storage (Audio, PDFs, Covers)
+- **State Management:** React Hooks + Server Actions
+- **Icons:** Lucide React
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/src/app`: Next.js App Router pages (Public and Admin routes)
+- `/src/components`: Reusable UI components (Forms, Tables, Layouts)
+- `/src/lib`: Supabase clients, utilities, and helper functions
+- `/src/constants`: Static application data and configurations
+- `/public`: Static assets (Fonts, Hero Images, SEO files)
+- `/supabase`: Database migrations and seed data
+- `/scripts`: Utility scripts for parsing and generating seed SQL
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 💻 Local Setup
 
-## Learn More
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd qarbla
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Environment Variables:**
+   Copy the example file and populate it with your local or remote Supabase credentials.
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   *Note: See DEPLOYMENT.md for detailed environment variable descriptions.*
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+5. **Access the application:**
+   - Public Site: `http://localhost:3000`
+   - Admin Dashboard: `http://localhost:3000/admin`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠 Development Workflow
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Styling:** We use a strict dark luxury design system. Stick to predefined Tailwind classes and custom tokens in `tailwind.config.ts`.
+- **Database Mutations:** All secure database operations are handled via Next.js Server Actions (`src/app/actions`) using the Supabase Service Role client to bypass RLS for admin tasks.
+- **Data Fetching:** Public data is fetched using the Supabase Anon client with standard RLS policies ensuring only `published` entities are readable.
+- **Icons & Assets:** Do not rely on external CDN images; keep all high-fidelity assets in `public/` or in the configured Supabase Storage buckets.
