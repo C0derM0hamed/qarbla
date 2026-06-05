@@ -16,21 +16,32 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      console.error("Login Error:", error);
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      if (error) {
+        console.error("Login Error:", error);
+        if (error.message.includes("Email not confirmed")) {
+          setError("لم يتم تأكيد البريد الإلكتروني بعد.");
+        } else {
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        }
+        setLoading(false);
+      } else if (data?.session) {
+        // SUCCESS: Bypass Next.js router cache by forcing a hard reload
+        // This ensures the middleware receives the new cookie and doesn't use a cached redirect
+        window.location.href = "/admin";
+      } else {
+        setError("حدث خطأ غير متوقع أثناء تسجيل الدخول");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error("Unexpected Error:", err);
+      setError(err?.message || "حدث خطأ غير متوقع");
       setLoading(false);
-    } else {
-      // Small delay to ensure cookies are propagated in the browser
-      setTimeout(() => {
-        router.push("/admin");
-        router.refresh();
-      }, 100);
     }
   };
 
