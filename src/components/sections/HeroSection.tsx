@@ -47,52 +47,54 @@ export function HeroSection({
         {/* Animated text group */}
         {mounted && (
           <>
-            <h1 className="font-scheherazade text-karbala-gold font-bold leading-[1.1] flex flex-col items-center drop-shadow-[0_0_60px_rgba(212,185,138,0.4)]">
-              {/* Optional dynamic logo image if available, else text */}
-              {logoImage ? (
-                 /* eslint-disable-next-line @next/next/no-img-element */
-                 <img src={logoImage} alt="Logo" className="h-24 md:h-32 mb-4 animate-fade-up" style={{ animationDelay: "300ms" }} />
-              ) : (
-                <span 
-                  className="block opacity-0 animate-fade-up" 
-                  style={{ fontSize: "clamp(5rem, 14vw, 11rem)", animationDelay: "300ms" }}
-                >
-                  وعي
-                </span>
-              )}
-              
-              <span 
-                className="block opacity-0 animate-fade-up" 
-                style={{ fontSize: "clamp(3rem, 8vw, 7rem)", animationDelay: "600ms" }}
+            {/* Logo / Icon above the main headline */}
+            {logoImage && (
+              <div className="mb-6 opacity-0 animate-fade-up" style={{ animationDelay: "300ms" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoImage} alt="شعار وعي" className="h-20 md:h-24 mx-auto rounded-md shadow-lg" />
+              </div>
+            )}
+
+            <h1 className="font-scheherazade text-karbala-gold font-bold leading-[1.02] text-center drop-shadow-[0_0_40px_rgba(212,185,138,0.35)]">
+              <span
+                className="block opacity-0 animate-fade-up"
+                style={{ fontSize: "clamp(4rem, 10vw, 9rem)", animationDelay: "400ms" }}
+              >
+                وعي
+              </span>
+
+              <span
+                className="block opacity-0 animate-fade-up text-karbala-gold-light"
+                style={{ fontSize: "clamp(2.2rem, 5.5vw, 4rem)", animationDelay: "700ms" }}
               >
                 يمرّ من
               </span>
-              
+
               <span
-                className="block text-[#C0392B] italic opacity-0 animate-fade-up drop-shadow-[0_0_60px_rgba(139,30,30,0.4)]"
-                style={{ fontSize: "clamp(3rem, 8vw, 7rem)", animationDelay: "900ms" }}
+                className="block italic opacity-0 animate-fade-up text-[#C0392B]"
+                style={{ fontSize: "clamp(2.4rem, 6vw, 4.5rem)", animationDelay: "1000ms" }}
               >
                 كربلاء
               </span>
             </h1>
 
-            <p 
-              className="font-kufi text-body-md text-karbala-secondary tracking-[0.15em] mt-xl uppercase opacity-0 animate-fade-up"
-              style={{ animationDelay: "1200ms" }}
+            <p
+              className="font-kufi text-body-md text-karbala-secondary tracking-[0.12em] mt-6 uppercase opacity-0 animate-fade-up"
+              style={{ animationDelay: "1300ms" }}
             >
               {title}
             </p>
-            
-            <p 
-              className="font-kufi text-body-lg text-karbala-gold-light mt-lg max-w-[500px] mx-auto opacity-0 animate-fade-up"
-              style={{ animationDelay: "1200ms" }}
+
+            <p
+              className="font-kufi text-body-lg text-karbala-gold-light mt-4 max-w-[680px] mx-auto opacity-0 animate-fade-up"
+              style={{ animationDelay: "1400ms", lineHeight: 1.6 }}
             >
               {subtitle}
             </p>
             
             {intro && (
-               <p className="font-kufi text-body-md text-karbala-gray mt-md max-w-prose mx-auto opacity-0 animate-fade-up"
-               style={{ animationDelay: "1200ms" }}>
+               <p className="font-kufi text-body-md text-karbala-gray mt-6 max-w-prose mx-auto opacity-0 animate-fade-up"
+               style={{ animationDelay: "1500ms", lineHeight: 1.8 }}>
                  {intro}
                </p>
             )}
