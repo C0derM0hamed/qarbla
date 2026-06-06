@@ -24,7 +24,7 @@ export default async function NewAttachmentPage() {
     }
 
     const adminSupabase = createAdminClient();
-    
+
     // Upload file
     const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
     const filename = `attachments/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -76,10 +76,10 @@ export default async function NewAttachmentPage() {
           </select>
         </div>
         <div>
-          <MediaUploader 
-            name="file" 
-            label="ملف المرفق" 
-            accept="*/*" 
+          <MediaUploader
+            name="file"
+            label="ملف المرفق"
+            accept="*/*"
             description="الرجاء اختيار الملف المناسب"
           />
         </div>
