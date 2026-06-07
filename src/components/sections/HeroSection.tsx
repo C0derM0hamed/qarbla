@@ -12,6 +12,8 @@ interface HeroSectionProps {
 }
 
 export function HeroSection(props: HeroSectionProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ignored = props;
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `

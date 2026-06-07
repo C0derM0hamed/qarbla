@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { revalidatePath } from "next/cache";
 import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { DataTable } from "@/components/admin/DataTable";
 import { deleteMajlisAction, toggleMajlisStatusAction } from "@/lib/actions/majlis";

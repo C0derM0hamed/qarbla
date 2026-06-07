@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { QuizButton } from "@/components/quiz/QuizButton";
 import type { Night } from "@/types/database";
 
 interface NightCardProps {
