@@ -1,21 +1,23 @@
 import React from "react";
 import Link from "next/link";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "لوحة التحكم | وعي يمر من كربلاء",
 };
 
 export default async function AdminDashboardPage() {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
 
   // Fetch real stats from the database
-  const [seasonsRes, nightsRes, cardsRes, resourcesRes, attachmentsRes] = await Promise.all([
+  const [seasonsRes, nightsRes, cardsRes, resourcesRes, attachmentsRes, quizzesRes, majalisRes] = await Promise.all([
     supabase.from("seasons").select("id, is_active").limit(1),
     supabase.from("nights").select("id, status"),
     supabase.from("cards").select("id, status"),
     supabase.from("resources").select("id"),
     supabase.from("attachments").select("id"),
+    supabase.from("quizzes").select("id, is_enabled"),
+    supabase.from("majalis").select("id, is_enabled"),
   ]);
 
   const nights = nightsRes.data ?? [];
@@ -29,6 +31,10 @@ export default async function AdminDashboardPage() {
     publishedCards: cards.filter(c => c.status === 'published').length,
     totalResources: resourcesRes.data?.length ?? 0,
     totalAttachments: attachmentsRes.data?.length ?? 0,
+    totalQuizzes: quizzesRes.data?.length ?? 0,
+    enabledQuizzes: (quizzesRes.data ?? []).filter((q) => q.is_enabled).length,
+    totalMajalis: majalisRes.data?.length ?? 0,
+    enabledMajalis: (majalisRes.data ?? []).filter((m) => m.is_enabled).length,
     activeSeason,
   };
 
@@ -97,6 +103,17 @@ export default async function AdminDashboardPage() {
 
       {/* Quick Actions */}
       <h2 className="text-xl font-bold text-gray-900 mb-4 font-scheherazade">إجراءات سريعة</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+          <p className="text-sm text-gray-500">الاختبارات</p>
+          <p className="text-xl font-bold">{stats.enabledQuizzes} / {stats.totalQuizzes}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-center">
+          <p className="text-sm text-gray-500">المجالس</p>
+          <p className="text-xl font-bold">{stats.enabledMajalis} / {stats.totalMajalis}</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link href="/admin/nights/new" className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
@@ -111,6 +128,15 @@ export default async function AdminDashboardPage() {
              <polyline points="14 2 14 8 20 8"></polyline>
           </svg>
           إدارة البطاقات
+        </Link>
+        <Link href="/admin/sheikh" className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium">
+          ملف الشيخ
+        </Link>
+        <Link href="/admin/quizzes/new" className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium">
+          إنشاء اختبار
+        </Link>
+        <Link href="/admin/majalis/new" className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium">
+          إضافة مجلس
         </Link>
         <Link href="/admin/season" className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700 font-medium">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">

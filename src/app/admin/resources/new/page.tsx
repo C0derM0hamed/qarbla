@@ -1,13 +1,13 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+import { createActionClient } from "@/lib/supabase/action";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "إضافة مصدر جديد | لوحة التحكم" };
 
 export default async function NewResourcePage() {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   const { data: nights } = await supabase.from("nights").select("id, title").order("number", { ascending: true });
 
   async function createResource(formData: FormData) {
@@ -17,7 +17,7 @@ export default async function NewResourcePage() {
     const category = formData.get("category") as string;
     const night_id = formData.get("night_id") as string;
 
-    const adminSupabase = createAdminClient();
+    const adminSupabase = await createActionClient();
     await adminSupabase.from("resources").insert({
       title,
       url,

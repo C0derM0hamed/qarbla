@@ -1,81 +1,65 @@
 "use server";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createActionClient } from "@/lib/supabase/action";
+import { resolveMediaUrl } from "@/lib/media/form-data";
 import { revalidatePath } from "next/cache";
-
-async function uploadFileToStorage(
-  supabase: ReturnType<typeof createAdminClient>,
-  file: File,
-  folder: string
-): Promise<string | null> {
-  if (!file || file.size === 0) return null;
-
-  const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
-  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  const { error: uploadError } = await supabase.storage
-    .from("media")
-    .upload(filename, buffer, {
-      contentType: file.type,
-      upsert: false,
-    });
-
-  if (uploadError) {
-    console.error("Storage upload error:", uploadError);
-    return null;
-  }
-
-  const { data: urlData } = supabase.storage
-    .from("media")
-    .getPublicUrl(filename);
-
-  return urlData.publicUrl;
-}
+import { revalidatePublicSite } from "@/lib/revalidate";
 
 export async function createNightAction(formData: FormData) {
-  const supabase = createAdminClient();
-
-  // Extract base night fields
   const number = parseInt(formData.get("number") as string);
   const title = formData.get("title") as string;
   const short_description = formData.get("short_description") as string;
   const teaser = formData.get("teaser") as string;
   const central_idea = formData.get("central_idea") as string;
   const why_important = formData.get("why_important") as string;
-  const status = formData.get("status") as 'draft' | 'published';
+  const status = formData.get("status") as "draft" | "published";
 
-  // Dynamic content (JSON)
   const topicsJson = formData.get("topics") as string;
   const versesJson = formData.get("verses") as string;
   const narrationsJson = formData.get("narrations") as string;
 
   try {
-    // Get the active season ID
+    const supabase = await createActionClient();
+
     const { data: season } = await supabase
       .from("seasons")
       .select("id")
       .eq("is_active", true)
       .single();
-    
+
     if (!season) {
       return { success: false, error: "No active season found. Please create a season first." };
     }
 
-    // ── Upload media files to Supabase Storage ──
-    const coverFile = formData.get("cover_image") as File;
-    const audioFile = formData.get("audio_file") as File;
-    const pdfFile = formData.get("pdf_file") as File;
-
-    const [cover_image, audio_file, pdf_file] = await Promise.all([
-      uploadFileToStorage(supabase, coverFile, `nights/covers`),
-      uploadFileToStorage(supabase, audioFile, `nights/audio`),
-      uploadFileToStorage(supabase, pdfFile, `nights/pdfs`),
+    const [coverResult, audioResult, pdfResult] = await Promise.all([
+      resolveMediaUrl(formData, {
+        urlField: "cover_image_url",
+        fileField: "cover_image",
+        folder: "nights/covers",
+      }),
+      resolveMediaUrl(formData, {
+        urlField: "audio_file_url",
+        fileField: "audio_file",
+        folder: "nights/audio",
+      }),
+      resolveMediaUrl(formData, {
+        urlField: "pdf_file_url",
+        fileField: "pdf_file",
+        folder: "nights/pdfs",
+      }),
     ]);
 
-    // 1. Insert Night (with media URLs)
+    const uploadErrors = [
+      coverResult.error && `الغلاف: ${coverResult.error}`,
+      audioResult.error && `الصوت: ${audioResult.error}`,
+      pdfResult.error && `PDF: ${pdfResult.error}`,
+    ].filter(Boolean);
+
+    if (uploadErrors.length > 0) {
+      return { success: false, error: `فشل رفع الملفات — ${uploadErrors.join(" | ")}` };
+    }
+
     const { data: night, error: nightError } = await supabase
       .from("nights")
       .insert({
@@ -88,17 +72,18 @@ export async function createNightAction(formData: FormData) {
         why_important,
         status,
         slug: `night-${number}`,
-        cover_image,
-        audio_file,
-        pdf_file,
+        cover_image: coverResult.url,
+        audio_file: audioResult.url,
+        pdf_file: pdfResult.url,
       })
-      .select()
+      .select("id, cover_image, audio_file, pdf_file")
       .single();
 
     if (nightError) throw nightError;
+    if (!night) throw new Error("فشل حفظ الليلة في قاعدة البيانات");
+
     const nightId = night.id;
 
-    // 2. Insert Topics
     if (topicsJson) {
       const topics = JSON.parse(topicsJson);
       if (topics.length > 0) {
@@ -113,7 +98,6 @@ export async function createNightAction(formData: FormData) {
       }
     }
 
-    // 3. Insert Verses
     if (versesJson) {
       const verses = JSON.parse(versesJson);
       if (verses.length > 0) {
@@ -129,7 +113,6 @@ export async function createNightAction(formData: FormData) {
       }
     }
 
-    // 4. Insert Narrations
     if (narrationsJson) {
       const narrations = JSON.parse(narrationsJson);
       if (narrations.length > 0) {
@@ -145,8 +128,9 @@ export async function createNightAction(formData: FormData) {
     }
 
     revalidatePath("/admin/nights");
-    revalidatePath("/karbala");
-    
+    revalidatePath(`/karbala/night/night-${number}`);
+    await revalidatePublicSite();
+
     return { success: true, nightId };
   } catch (error: any) {
     console.error("Error creating night:", error);

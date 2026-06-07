@@ -1,15 +1,16 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/admin/DataTable";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { CARD_TYPE_LABELS } from "@/constants";
 
 export const metadata = {
   title: "إدارة البطاقات | لوحة التحكم",
 };
 
 export default async function AdminCardsPage() {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   const { data: cards, error } = await supabase
     .from("cards")
     .select("*, nights(title)")
@@ -19,14 +20,7 @@ export default async function AdminCardsPage() {
     console.error("Error fetching cards:", error);
   }
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case "quote": return "مقولة";
-      case "reflection": return "تأمل";
-      case "visual": return "مرئية";
-      default: return type;
-    }
-  };
+  const getTypeLabel = (type: string) => CARD_TYPE_LABELS[type] || type;
 
   return (
     <div className="font-kufi space-y-6">
@@ -74,8 +68,8 @@ export default async function AdminCardsPage() {
                 </Link>
                 <form action={async () => {
                   "use server";
-                  const { createAdminClient } = await import("@/lib/supabase/admin");
-                  const adminSupabase = createAdminClient();
+                  const { createActionClient } = await import("@/lib/supabase/action");
+                  const adminSupabase = await createActionClient();
                   await adminSupabase.from("cards").delete().eq("id", row.id);
                   revalidatePath("/admin/cards");
                   revalidatePath("/karbala/cards");

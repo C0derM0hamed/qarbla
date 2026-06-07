@@ -3,8 +3,9 @@
 
 export type SeasonStatus = "active" | "inactive";
 export type NightStatus = "draft" | "published" | "hidden";
-export type CardType = "quote" | "reflection" | "visual";
+export type CardType = "quote" | "reflection" | "visual" | "benefit" | "question" | "note" | "excerpt";
 export type CardStatus = "draft" | "published";
+export type CardImagePosition = "top" | "bottom" | "left" | "right" | "background";
 export type AttachmentType = "audio" | "pdf" | "image";
 export type AttachmentStatus = "draft" | "published";
 export type ResourceCategory = "book" | "article" | "video" | "website";
@@ -21,6 +22,17 @@ export interface Season {
   is_active: boolean;
   seo_title: string | null;
   seo_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── Sheikh Profile ───
+
+export interface SheikhProfile {
+  id: string;
+  name: string;
+  image: string | null;
+  is_visible: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +56,10 @@ export interface Night {
   cover_image: string | null;
   audio_file: string | null;
   pdf_file: string | null;
+  video_file: string | null;
+  video_url: string | null;
+  show_audio: boolean;
+  show_video: boolean;
   status: NightStatus;
   sort_order: number;
   seo_title: string | null;
@@ -61,6 +77,7 @@ export interface NightWithRelations extends Night {
   resources: Resource[];
   cards: Card[];
   attachments: Attachment[];
+  quiz: QuizWithQuestions | null;
 }
 
 // ─── Topics ───
@@ -123,6 +140,7 @@ export interface Card {
   title: string;
   content: string | null;
   image: string | null;
+  image_position: CardImagePosition;
   downloadable: boolean;
   status: CardStatus;
   featured: boolean;
@@ -143,6 +161,64 @@ export interface Attachment {
   file_url: string;
   downloadable: boolean;
   status: AttachmentStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── Quizzes ───
+
+export interface Quiz {
+  id: string;
+  night_id: string;
+  title: string | null;
+  is_enabled: boolean;
+  opens_at: string | null;
+  motivational_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  quiz_id: string;
+  question: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuizAnswer {
+  id: string;
+  question_id: string;
+  answer_text: string;
+  is_correct: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuizQuestionWithAnswers extends QuizQuestion {
+  answers: QuizAnswer[];
+}
+
+export interface QuizWithQuestions extends Quiz {
+  questions: QuizQuestionWithAnswers[];
+}
+
+export interface QuizWithNight extends Quiz {
+  night: Pick<Night, "id" | "number" | "title" | "slug">;
+}
+
+// ─── Majalis ───
+
+export interface Majlis {
+  id: string;
+  name: string;
+  address: string | null;
+  location_description: string | null;
+  google_maps_url: string;
+  is_enabled: boolean;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }

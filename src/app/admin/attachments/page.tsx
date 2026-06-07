@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/admin/DataTable";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export const metadata = {
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function AdminAttachmentsPage() {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   const { data: attachments, error } = await supabase
     .from("attachments")
     .select("*, nights(title)")
@@ -41,7 +41,15 @@ export default async function AdminAttachmentsPage() {
         columns={[
           { header: "العنوان", accessor: "title" },
           { header: "النوع", accessor: (row) => row.type === 'audio' ? 'صوتي' : row.type === 'pdf' ? 'ملف PDF' : 'صورة' },
-          { header: "الليلة", accessor: (row) => row.nights?.title || "عام" },
+          { header: "الليلة", accessor: (row) => row.nights?.title || "—" },
+          {
+            header: "الحالة",
+            accessor: (row) => (
+              <span className={row.status === "published" ? "text-green-700" : "text-amber-700"}>
+                {row.status === "published" ? "منشور" : "مسودة"}
+              </span>
+            ),
+          },
           { header: "الرابط", accessor: (row) => <a href={row.file_url} target="_blank" className="text-blue-600 hover:text-blue-800 underline">عرض الملف</a> },
           { 
             header: "تاريخ الإضافة", 
@@ -56,8 +64,8 @@ export default async function AdminAttachmentsPage() {
                 </Link>
                 <form action={async () => {
                   "use server";
-                  const { createAdminClient } = await import("@/lib/supabase/admin");
-                  const adminSupabase = createAdminClient();
+                  const { createActionClient } = await import("@/lib/supabase/action");
+                  const adminSupabase = await createActionClient();
                   await adminSupabase.from("attachments").delete().eq("id", row.id);
                   revalidatePath("/admin/attachments");
                 }}>

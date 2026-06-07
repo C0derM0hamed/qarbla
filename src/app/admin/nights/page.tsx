@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { DataTable } from "@/components/admin/DataTable";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export const metadata = {
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function AdminNightsPage() {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   const { data: nights, error } = await supabase
     .from("nights")
     .select("*")
@@ -66,8 +66,8 @@ export default async function AdminNightsPage() {
                 </Link>
                 <form action={async () => {
                   "use server";
-                  const { createAdminClient } = await import("@/lib/supabase/admin");
-                  const adminSupabase = createAdminClient();
+                  const { createActionClient } = await import("@/lib/supabase/action");
+                  const adminSupabase = await createActionClient();
                   await adminSupabase.from("nights").delete().eq("id", row.id);
                   revalidatePath("/admin/nights");
                   revalidatePath("/karbala");

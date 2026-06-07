@@ -7,6 +7,8 @@ export const metadata = {
   description: "بطاقات، مقتطفات، وتأملات من ليالي وعي يمر من كربلاء",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CardsPage() {
   const cards = await getPublishedCards();
 

@@ -1,14 +1,16 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+import { createActionClient } from "@/lib/supabase/action";
+import { persistRowUpdate } from "@/lib/media/db-persist";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import { NightMediaForm } from "@/components/admin/forms/NightMediaForm";
 
 export const metadata = { title: "تعديل ليلة | لوحة التحكم" };
 
 export default async function EditNightPage({ params }: { params: { id: string } }) {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   
   // Fetch night data
   const { data: night } = await supabase
@@ -32,8 +34,8 @@ export default async function EditNightPage({ params }: { params: { id: string }
     const practical_step = formData.get("practical_step") as string;
     const status = formData.get("status") as string;
 
-    const adminSupabase = createAdminClient();
-    await adminSupabase.from("nights").update({
+    const actionClient = await createActionClient();
+    const { error } = await persistRowUpdate(actionClient, "nights", params.id, {
       title,
       short_description,
       teaser,
@@ -44,12 +46,16 @@ export default async function EditNightPage({ params }: { params: { id: string }
       reflection_question,
       practical_step,
       status,
-      updated_at: new Date().toISOString()
-    }).eq("id", params.id);
+      updated_at: new Date().toISOString(),
+    });
 
+    if (error) throw new Error(error);
+
+    const { revalidatePublicSite } = await import("@/lib/revalidate");
     revalidatePath("/admin/nights");
-    revalidatePath("/karbala");
     revalidatePath(`/karbala/night/${night.slug}`);
+    revalidatePath(`/karbala/night/${night.slug}/quiz`);
+    await revalidatePublicSite();
     redirect("/admin/nights");
   }
 
@@ -108,6 +114,8 @@ export default async function EditNightPage({ params }: { params: { id: string }
           <button type="submit" className="px-4 py-2 bg-karbala-gold text-white rounded-md hover:bg-karbala-gold-dark transition-colors shadow-sm">حفظ التعديلات</button>
         </div>
       </form>
+
+      <NightMediaForm night={night} />
     </div>
   );
 }

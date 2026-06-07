@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createNightAction } from "@/lib/actions/night";
-import { MediaUploader } from "@/components/admin/MediaUploader";
+import { MediaUrlUploader } from "@/components/admin/MediaUrlUploader";
 
 export function NightForm() {
   const router = useRouter();
@@ -103,22 +103,28 @@ export function NightForm() {
         <h2 className="text-xl font-bold text-gray-900 mb-6 font-scheherazade border-b pb-2">الوسائط والملفات</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MediaUploader 
-            name="cover_image" 
-            label="صورة الغلاف" 
-            accept="image/*" 
+          <MediaUrlUploader
+            name="cover_image"
+            urlFieldName="cover_image_url"
+            folder="nights/covers"
+            label="صورة الغلاف"
+            accept="image/*"
             description="JPG, PNG, WEBP"
           />
-          <MediaUploader 
-            name="audio_file" 
-            label="التسجيل الصوتي" 
-            accept="audio/mp3,audio/mpeg,audio/wav" 
+          <MediaUrlUploader
+            name="audio_file"
+            urlFieldName="audio_file_url"
+            folder="nights/audio"
+            label="التسجيل الصوتي"
+            accept="audio/mp3,audio/mpeg,audio/wav,audio/*"
             description="ملف MP3 للمحاضرة"
           />
-          <MediaUploader 
-            name="pdf_file" 
-            label="ملخص PDF" 
-            accept="application/pdf" 
+          <MediaUrlUploader
+            name="pdf_file"
+            urlFieldName="pdf_file_url"
+            folder="nights/pdfs"
+            label="ملخص PDF"
+            accept="application/pdf"
             description="ملف PDF للتحميل"
           />
         </div>

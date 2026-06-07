@@ -5,7 +5,10 @@ import { NightCard } from "@/components/cards/NightCard";
 import type { Night } from "@/types/database";
 
 interface NightsCarouselProps {
-  nights: (Pick<Night, "id" | "number" | "title" | "slug"> & { isLocked?: boolean })[];
+  nights: (Pick<Night, "id" | "number" | "title" | "slug"> & {
+    isLocked?: boolean;
+    quiz?: { id: string; is_enabled: boolean; opens_at: string | null } | null;
+  })[];
 }
 
 export function NightsCarousel({ nights }: NightsCarouselProps) {

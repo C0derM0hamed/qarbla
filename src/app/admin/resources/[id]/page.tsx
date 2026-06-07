@@ -1,14 +1,14 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createServerClient } from "@/lib/supabase/server";
+import { createActionClient } from "@/lib/supabase/action";
+import { createAuthenticatedServerClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 
 export const metadata = { title: "تعديل مصدر | لوحة التحكم" };
 
 export default async function EditResourcePage({ params }: { params: { id: string } }) {
-  const supabase = createServerClient();
+  const supabase = await createAuthenticatedServerClient();
   
   // Fetch resource and nights
   const [{ data: resource }, { data: nights }] = await Promise.all([
@@ -25,7 +25,7 @@ export default async function EditResourcePage({ params }: { params: { id: strin
     const category = formData.get("category") as string;
     const night_id = formData.get("night_id") as string;
 
-    const adminSupabase = createAdminClient();
+    const adminSupabase = await createActionClient();
     await adminSupabase.from("resources").update({
       title,
       url,

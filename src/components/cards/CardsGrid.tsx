@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { QuoteCard, ReflectionCard } from "@/components/cards/ContentCards";
+import { renderCard } from "@/components/cards/ContentCards";
 import { SectionDivider } from "@/components/ui/SectionDivider";
 import type { Card } from "@/types/database";
 import Link from "next/link";
@@ -20,7 +20,6 @@ export function CardsGrid({ initialCards }: CardsGridProps) {
 
   return (
     <div className="section-container pb-8xl">
-      {/* Filters */}
       <div className="flex flex-wrap items-center justify-center gap-4 mb-4xl">
         <button
           onClick={() => setFilter("all")}
@@ -49,20 +48,15 @@ export function CardsGrid({ initialCards }: CardsGridProps) {
 
       <SectionDivider />
 
-      {/* Grid */}
       {filteredCards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-xl mt-4xl">
           {filteredCards.map((card) => (
-            <Link key={card.id} href={`/karbala/cards/${card.slug}`} className="block h-full transition-transform hover:-translate-y-1">
-              {card.type === "quote" ? (
-                <QuoteCard card={card} />
-              ) : card.type === "reflection" ? (
-                <ReflectionCard card={card} />
-              ) : (
-                <div className="card-base p-6 h-full flex items-center justify-center">
-                  <p className="font-kufi text-karbala-gold text-center">بطاقة مرئية: {card.title}</p>
-                </div>
-              )}
+            <Link
+              key={card.id}
+              href={`/karbala/cards/${card.slug}`}
+              className="block h-full transition-transform hover:-translate-y-1"
+            >
+              {renderCard(card)}
             </Link>
           ))}
         </div>
