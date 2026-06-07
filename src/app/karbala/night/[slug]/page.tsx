@@ -35,6 +35,48 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+function getEstimatedReadingTime(night: any): number {
+  const texts = [
+    night.short_description,
+    night.teaser,
+    night.central_idea,
+    night.why_important,
+    night.quote,
+    night.reflection_question,
+    night.practical_step,
+  ];
+
+  if (night.topics) {
+    night.topics.forEach((t: any) => {
+      texts.push(t.title);
+      texts.push(t.content);
+    });
+  }
+
+  if (night.verses) {
+    night.verses.forEach((v: any) => texts.push(v.content));
+  }
+
+  if (night.narrations) {
+    night.narrations.forEach((n: any) => texts.push(n.content));
+  }
+
+  const fullText = texts.filter(Boolean).join(" ");
+  const wordCount = fullText.trim().split(/\s+/).filter(word => word.length > 0).length;
+  
+  const readingSpeedWPM = 180;
+  const minutes = Math.round(wordCount / readingSpeedWPM);
+  
+  return Math.max(1, minutes);
+}
+
+function formatReadingTime(minutes: number): string {
+  if (minutes === 1) return "دقيقة";
+  if (minutes === 2) return "دقيقتين";
+  if (minutes >= 3 && minutes <= 10) return `${minutes} دقائق`;
+  return `${minutes} دقيقة`;
+}
+
 export default async function NightPage({ params }: { params: { slug: string } }) {
   const night = await getNightBySlug(params.slug);
   if (!night) notFound();
@@ -42,6 +84,9 @@ export default async function NightPage({ params }: { params: { slug: string } }
   const showAudio = night.show_audio !== false && night.audio_file;
   const showVideo = night.show_video !== false && (night.video_file || night.video_url);
   const hasQuiz = night.quiz?.is_enabled && night.quiz.questions.length > 0;
+  
+  const readingMinutes = getEstimatedReadingTime(night);
+  const readingTimeText = formatReadingTime(readingMinutes);
 
   return (
     <div className="pb-8xl">
@@ -75,6 +120,14 @@ export default async function NightPage({ params }: { params: { slug: string } }
       )}
 
       <section className="section-container mt-4xl mb-6xl text-center max-w-prose">
+        <div className="inline-flex items-center justify-center gap-2 mb-6 px-5 py-2 rounded-pill border border-[rgba(212,185,138,0.2)] bg-[rgba(212,185,138,0.05)] text-karbala-secondary backdrop-blur-sm shadow-sm transition-colors hover:border-[rgba(212,185,138,0.4)]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-karbala-gold">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span className="font-kufi text-[0.85rem] md:text-sm font-medium tracking-wide">مدة القراءة: {readingTimeText}</span>
+        </div>
+        
         <h1 className="font-scheherazade text-display-h1 text-karbala-gold mb-4 leading-tight">
           {night.title}
         </h1>

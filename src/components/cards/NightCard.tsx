@@ -62,8 +62,16 @@ export function NightCard({ night, isFeatured = false }: NightCardProps) {
               {night.title}
             </h3>
 
-            <div className="inline-flex items-center justify-center px-4 py-1.5 border border-karbala-gold rounded-pill bg-transparent text-karbala-gold text-[0.8rem] font-kufi group-hover:bg-[rgba(212,185,138,0.1)] group-hover:text-white transition-colors">
-              {night.isLocked ? "قريباً" : "تصفح الليلة"}
+            <div className="flex gap-2 flex-wrap">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 border border-karbala-gold rounded-pill bg-transparent text-karbala-gold text-[0.8rem] font-kufi group-hover:bg-[rgba(212,185,138,0.1)] group-hover:text-white transition-colors">
+                {night.isLocked ? "قريباً" : "تصفح الليلة"}
+              </div>
+
+              {hasQuiz && !night.isLocked && (
+                <div className="inline-flex items-center justify-center px-4 py-1.5 border border-[#8B1E1E] rounded-pill bg-transparent text-[#C0392B] text-[0.8rem] font-kufi group-hover:bg-[#8B1E1E] group-hover:text-white transition-colors">
+                  اختبر معلوماتك
+                </div>
+              )}
             </div>
           </div>
         </div>

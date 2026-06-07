@@ -30,7 +30,7 @@ export default function AdminSheikhPage() {
     setSuccess(false);
 
     const formData = new FormData(e.currentTarget);
-    formData.append(
+    formData.set(
       "is_visible",
       (e.currentTarget.elements.namedItem("is_visible") as HTMLInputElement).checked.toString()
     );

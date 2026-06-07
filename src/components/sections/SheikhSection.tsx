@@ -30,9 +30,6 @@ export function SheikhSection({ profile }: SheikhSectionProps) {
             )}
 
             <div className="text-center md:text-right flex-1">
-              <p className="font-kufi text-sm text-karbala-gold-dark tracking-[0.2em] uppercase mb-3">
-                خطيب الموسم
-              </p>
               <h2 className="font-scheherazade text-display-h2 text-karbala-gold mb-4 leading-tight">
                 {profile.name}
               </h2>
