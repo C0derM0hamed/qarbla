@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     locale: "ar_SA",
     siteName: SITE_NAME,
   },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 import { Noto_Kufi_Arabic, Noto_Sans_Arabic, Scheherazade_New, Cinzel } from "next/font/google";

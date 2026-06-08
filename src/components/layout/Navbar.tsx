@@ -157,7 +157,7 @@ export function Navbar() {
         {/* RIGHT side: logo */}
         <Link href="/karbala" className="nav-logo-container" aria-label="الرئيسية">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icon.png" alt="شعار وعي يمر من كربلاء" className="nav-logo" />
+          <img src="/logo.png?v=2" alt="شعار وعي يمر من كربلاء" className="nav-logo" />
         </Link>
 
         {/* CENTER: links (Desktop) */}
