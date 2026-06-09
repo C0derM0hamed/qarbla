@@ -34,18 +34,21 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isAuthRoute = request.nextUrl.pathname === '/admin/login'
+  // Auth-related pages that should be accessible without authentication
+  const publicAuthPaths = ['/admin/login', '/admin/forgot-password', '/admin/reset-password']
+  const isAuthRoute = publicAuthPaths.includes(request.nextUrl.pathname)
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
 
-  // If trying to access admin routes (except login) and not authenticated, redirect to login
+  // If trying to access admin routes (except auth pages) and not authenticated, redirect to login
   if (isAdminRoute && !isAuthRoute && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin/login'
     return NextResponse.redirect(url)
   }
 
-  // If trying to access login page and already authenticated, redirect to admin dashboard
-  if (isAuthRoute && user) {
+  // If trying to access login/forgot-password page and already authenticated, redirect to admin dashboard
+  // (reset-password is excluded so authenticated users can reset from recovery links)
+  if ((request.nextUrl.pathname === '/admin/login' || request.nextUrl.pathname === '/admin/forgot-password') && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     return NextResponse.redirect(url)

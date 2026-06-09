@@ -26,6 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
 
 # vercel
@@ -34,3 +35,27 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+*.zip
+deploy-new.zip
+
+# Editor directories
+.vscode/
+.idea/
+
+# Tests
+/tests/
+/__tests__/
+*.test.*
+*.spec.*
+
+# Scripts and debug utilities (not required for runtime hosting)
+/scripts/
+test-*.js
+debug-*.js
+
+# Database dumps & seeds (not required for runtime)
+/mysql_schema.sql
+/mysql_seed.sql
+/supabase/seed.sql
+/supabase/create-admin.sql
+/public/seed-data.json

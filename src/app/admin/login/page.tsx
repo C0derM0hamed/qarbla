@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-
+import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import { SITE_NAME } from "@/constants";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -47,8 +48,8 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-sm border border-gray-100">
         <div className="text-center">
-          <h2 className="font-scheherazade text-4xl text-karbala-gold font-bold mb-2">لوحة التحكم</h2>
-          <p className="text-sm text-gray-500 font-kufi">سجل الدخول لإدارة منصة وعي يمر من كربلاء</p>
+          <h2 className="font-scheherazade text-4xl text-karbala-gold font-bold mb-2">{SITE_NAME}</h2>
+          <p className="text-sm text-gray-500 font-kufi">سجل الدخول لإدارة المنصة</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
@@ -72,7 +73,15 @@ export default function AdminLoginPage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 font-kufi mb-1">كلمة المرور</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-gray-700 font-kufi">كلمة المرور</label>
+                <Link
+                  href="/admin/forgot-password"
+                  className="text-xs font-medium text-karbala-gold hover:text-karbala-gold-dark transition-colors font-kufi"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
               <input
                 type="password"
                 required

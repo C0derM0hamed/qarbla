@@ -52,7 +52,9 @@ export default async function NightQuizPage({
       </div>
 
       <section className="section-container mt-4xl mb-6xl text-center max-w-prose mx-auto">
-       
+        <h1 className="font-scheherazade text-display-h2 text-karbala-gold mb-4">
+          اختبر معلوماتك
+        </h1>
         <p className="font-kufi text-body-lg text-karbala-gold-light">
           الليلة {quizData.night.number}: {quizData.night.title}
         </p>

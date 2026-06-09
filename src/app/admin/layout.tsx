@@ -42,6 +42,16 @@ export default function AdminLayout({
         </div>
 
         <div className="hidden md:block p-4 border-t border-gray-200">
+          <Link
+            href="/admin/profile"
+            className="flex items-center w-full px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-colors mb-1"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 shrink-0">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            الملف الشخصي
+          </Link>
           <form action="/auth/signout" method="post">
             <button
               type="submit"
