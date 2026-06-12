@@ -91,7 +91,7 @@ export function HeroSection({
             <h1 className="font-scheherazade text-center flex flex-col items-center select-none drop-shadow-[0_0_35px_rgba(212,185,138,0.2)]">
               {/* وعي */}
               <span
-                className="block opacity-0 animate-fade-up text-transparent bg-clip-text bg-gradient-to-b from-karbala-gold-light via-karbala-gold to-karbala-gold-dark font-bold leading-[1.1]"
+                className="block opacity-0 animate-fade-up text-transparent bg-clip-text bg-gradient-to-b from-karbala-gold-light via-karbala-gold to-karbala-gold-dark font-bold leading-[1.4] py-3 px-6"
                 style={{ fontSize: "clamp(3.8rem, 10vw, 8.5rem)", animationDelay: "400ms" }}
               >
                 وعي
@@ -107,7 +107,7 @@ export function HeroSection({
 
               {/* كربلاء */}
               <span
-                className="block italic opacity-0 animate-fade-up text-transparent bg-clip-text bg-gradient-to-b from-[#E74C3C] to-[#962D22] font-bold leading-[1.1] drop-shadow-[0_2px_12px_rgba(150,45,34,0.4)]"
+                className="block italic opacity-0 animate-fade-up text-transparent bg-clip-text bg-gradient-to-b from-[#E74C3C] to-[#962D22] font-bold leading-[1.4] py-3 px-6 drop-shadow-[0_2px_12px_rgba(150,45,34,0.4)]"
                 style={{ fontSize: "clamp(2.8rem, 7.5vw, 5.5rem)", animationDelay: "1000ms" }}
               >
                 كربلاء
