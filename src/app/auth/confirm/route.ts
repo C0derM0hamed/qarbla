@@ -7,6 +7,30 @@ import type { EmailOtpType } from "@supabase/supabase-js";
  * Auth confirmation route for Supabase email OTP verification.
  * Handles recovery type redirects to reset-password page.
  */
+function getAbsoluteUrl(path: string, request: NextRequest) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) {
+    return `${siteUrl.replace(/\/$/, '')}${path}`;
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}${path}`;
+  }
+
+  const origin = request.nextUrl.origin;
+  if (origin.includes("0.0.0.0") || origin.includes("127.0.0.1") || origin.includes("localhost")) {
+    return `https://jaffer-hassan.com${path}`;
+  }
+
+  return `${origin}${path}`;
+}
+
+/**
+ * Auth confirmation route for Supabase email OTP verification.
+ * Handles recovery type redirects to reset-password page.
+ */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const token_hash = searchParams.get("token_hash");
@@ -44,16 +68,16 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // For recovery type, redirect to reset-password page
       if (type === "recovery") {
-        return NextResponse.redirect(
-          new URL("/admin/reset-password", request.url)
-        );
+        const resetPasswordUrl = getAbsoluteUrl('/admin/reset-password', request);
+        return NextResponse.redirect(resetPasswordUrl);
       }
-      return NextResponse.redirect(new URL(next, request.url));
+      
+      const successUrl = getAbsoluteUrl(next, request);
+      return NextResponse.redirect(successUrl);
     }
   }
 
   // Redirect to login with an error if verification fails
-  return NextResponse.redirect(
-    new URL("/admin/login?error=verification_failed", request.url)
-  );
+  const failureUrl = getAbsoluteUrl('/admin/login?error=verification_failed', request);
+  return NextResponse.redirect(failureUrl);
 }

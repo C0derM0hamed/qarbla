@@ -13,6 +13,15 @@ export default function ErrorBoundary({
   useEffect(() => {
     // Log the error to an error reporting service in production
     console.error("Application Error:", error);
+
+    // Auto-reload on ChunkLoadError to fetch new static assets after a deployment
+    if (
+      error.message?.includes("ChunkLoadError") ||
+      error.message?.includes("Loading chunk") ||
+      error.message?.includes("Failed to fetch dynamically imported module")
+    ) {
+      window.location.reload();
+    }
   }, [error]);
 
   return (

@@ -7,8 +7,33 @@ import { NextResponse, type NextRequest } from "next/server";
  * Handles email confirmation, password recovery, and OAuth redirects.
  * Supabase redirects here with a `code` param after email link clicks.
  */
+function getAbsoluteUrl(path: string, request: NextRequest) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) {
+    return `${siteUrl.replace(/\/$/, '')}${path}`;
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}${path}`;
+  }
+
+  const origin = request.nextUrl.origin;
+  if (origin.includes("0.0.0.0") || origin.includes("127.0.0.1") || origin.includes("localhost")) {
+    return `https://jaffer-hassan.com${path}`;
+  }
+
+  return `${origin}${path}`;
+}
+
+/**
+ * Auth callback handler for Supabase Auth.
+ * Handles email confirmation, password recovery, and OAuth redirects.
+ * Supabase redirects here with a `code` param after email link clicks.
+ */
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/admin";
 
@@ -38,18 +63,17 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(new URL(next, request.url));
       }
+      
+      const redirectUrl = getAbsoluteUrl(next, request);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
   // If code exchange fails or no code, redirect to login with error
-  return NextResponse.redirect(`${origin}/admin/login?error=auth_callback_failed`);
+  const loginErrorUrl = getAbsoluteUrl('/admin/login?error=auth_callback_failed', request);
+  return NextResponse.redirect(loginErrorUrl);
 }
