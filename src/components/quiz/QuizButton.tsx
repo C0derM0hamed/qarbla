@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface QuizButtonProps {
@@ -10,7 +10,31 @@ interface QuizButtonProps {
 }
 
 export function QuizButton({ nightSlug, opensAt, compact = false }: QuizButtonProps) {
-  const isOpen = !opensAt || new Date(opensAt) <= new Date();
+  const [isOpen, setIsOpen] = useState(() => !opensAt || new Date(opensAt) <= new Date());
+
+  useEffect(() => {
+    if (!opensAt || isOpen) return;
+
+    // Re-check every 30 seconds
+    const interval = setInterval(() => {
+      if (new Date(opensAt) <= new Date()) {
+        setIsOpen(true);
+        clearInterval(interval);
+      }
+    }, 30_000);
+
+    // Also set a precise timeout for exact open time
+    const msUntilOpen = new Date(opensAt).getTime() - Date.now();
+    if (msUntilOpen > 0 && msUntilOpen < 86_400_000) {
+      const timeout = setTimeout(() => setIsOpen(true), msUntilOpen);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+
+    return () => clearInterval(interval);
+  }, [opensAt, isOpen]);
 
   if (compact) {
     return (
@@ -37,3 +61,4 @@ export function QuizButton({ nightSlug, opensAt, compact = false }: QuizButtonPr
     </Link>
   );
 }
+

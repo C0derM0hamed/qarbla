@@ -79,8 +79,24 @@ export function QuizForm({ nights, existing }: QuizFormProps) {
     }
   };
 
+  // Format opens_at for datetime-local input in admin's timezone (Asia/Bahrain, UTC+3)
+  // toISOString() would show UTC which is -3 hours off from what the admin set
   const opensAtDefault = existing?.opens_at
-    ? new Date(existing.opens_at).toISOString().slice(0, 16)
+    ? (() => {
+        const d = new Date(existing.opens_at);
+        // Format as YYYY-MM-DDTHH:mm in Asia/Bahrain timezone
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Bahrain",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).formatToParts(d);
+        const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+        return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
+      })()
     : "";
 
   return (

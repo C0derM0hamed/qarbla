@@ -2,8 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getQuizByNightSlug } from "@/lib/queries";
-import { QuizTaker } from "@/components/quiz/QuizTaker";
-import { QuizCountdown } from "@/components/quiz/QuizCountdown";
+import { QuizGate } from "@/components/quiz/QuizGate";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +27,6 @@ export default async function NightQuizPage({
 }) {
   const quizData = await getQuizByNightSlug(params.slug);
   if (!quizData) notFound();
-
-  const isOpen = !quizData.opens_at || new Date(quizData.opens_at) <= new Date();
-  const hasQuestions = quizData.questions.length > 0;
 
   return (
     <div className="pb-8xl">
@@ -61,16 +57,9 @@ export default async function NightQuizPage({
       </section>
 
       <section className="section-container">
-        {!isOpen && quizData.opens_at ? (
-          <QuizCountdown opensAt={quizData.opens_at} />
-        ) : !hasQuestions ? (
-          <p className="font-kufi text-karbala-secondary text-center">
-            الاختبار قيد الإعداد. عد لاحقاً.
-          </p>
-        ) : (
-          <QuizTaker quiz={quizData} />
-        )}
+        <QuizGate quiz={quizData} />
       </section>
     </div>
   );
 }
+

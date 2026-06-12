@@ -11,6 +11,30 @@ interface QuizQuestionInput {
   answers: { text: string; is_correct: boolean }[];
 }
 
+/**
+ * Convert a datetime-local input value (e.g. "2026-06-12T20:00") to a proper
+ * ISO 8601 string with the admin's timezone offset.
+ * The admin is in Asia/Bahrain (UTC+3), so we append +03:00.
+ * This ensures Supabase TIMESTAMPTZ stores the correct absolute time.
+ */
+function normalizeOpensAt(raw: string | null): string | null {
+  if (!raw || raw.trim() === "") return null;
+
+  // If the value already has timezone info (Z, +, or - after time), use as-is
+  if (/[Z+]/.test(raw.slice(10)) || /T\d{2}:\d{2}.*-/.test(raw)) {
+    return new Date(raw).toISOString();
+  }
+
+  // datetime-local gives "YYYY-MM-DDTHH:mm" — append admin's timezone (AST = UTC+3)
+  const withTz = `${raw}:00+03:00`;
+  const parsed = new Date(withTz);
+  if (isNaN(parsed.getTime())) {
+    console.error("[Quiz] Invalid opens_at value:", raw);
+    return null;
+  }
+  return parsed.toISOString();
+}
+
 export async function saveQuizAction(formData: FormData) {
   const supabase = await createActionClient();
 
@@ -18,7 +42,8 @@ export async function saveQuizAction(formData: FormData) {
   const night_id = formData.get("night_id") as string;
   const title = formData.get("title") as string;
   const is_enabled = formData.get("is_enabled") === "true";
-  const opens_at = (formData.get("opens_at") as string) || null;
+  const rawOpensAt = (formData.get("opens_at") as string) || null;
+  const opens_at = normalizeOpensAt(rawOpensAt);
   const motivational_message = (formData.get("motivational_message") as string) || null;
   const questionsJson = formData.get("questions") as string;
 

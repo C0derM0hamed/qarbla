@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 
 interface QuizCountdownProps {
   opensAt: string;
+  onOpen?: () => void;
 }
 
 function getTimeRemaining(opensAt: string) {
@@ -18,15 +19,20 @@ function getTimeRemaining(opensAt: string) {
   return { days, hours, minutes, seconds };
 }
 
-export function QuizCountdown({ opensAt }: QuizCountdownProps) {
+export function QuizCountdown({ opensAt, onOpen }: QuizCountdownProps) {
   const [remaining, setRemaining] = useState(getTimeRemaining(opensAt));
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRemaining(getTimeRemaining(opensAt));
+      const r = getTimeRemaining(opensAt);
+      setRemaining(r);
+      if (!r) {
+        clearInterval(interval);
+        onOpen?.();
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [opensAt]);
+  }, [opensAt, onOpen]);
 
   if (!remaining) return null;
 
@@ -60,3 +66,4 @@ export function QuizCountdown({ opensAt }: QuizCountdownProps) {
     </div>
   );
 }
+
